@@ -2,10 +2,13 @@
 
 # import the modules you need here
 import argparse
+import pandas as pd
+
+
 
 def read_tidal_data(filename):
-
-    return 0
+    data = pd.read_csv(filename, skiprows=[0,1,2,3,4,5,6,7,8,10])
+    return data
     
 def extract_single_year_remove_mean(year, data):
    
