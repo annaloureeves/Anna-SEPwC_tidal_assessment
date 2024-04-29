@@ -7,7 +7,8 @@ import pandas as pd
 
 
 def read_tidal_data(filename):
-    data = pd.read_csv(filename, skiprows=[0,1,2,3,4,5,6,7,8,10])
+    data = pd.read_csv(filename, sep='\s+', skiprows=[0,1,2,3,4,5,6,7,8,10])
+    data.columns = data.columns.str.replace("ASLVZZ01", "Sea Level")
     return data
     
 def extract_single_year_remove_mean(year, data):
