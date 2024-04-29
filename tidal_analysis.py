@@ -13,7 +13,9 @@ def read_tidal_data(filename):
     data = pd.read_csv(filename, sep='\s+', skiprows=[0,1,2,3,4,5,6,7,8,9,10], names=['Cycle', 'Date', 'Time', 'Sea Level', 'Residual'])
     # Combine "Date" and "Time" to "datetimes" 
     # References: https://stackoverflow.com/questions/17978092/combine-date-and-time-columns-using-pandas
-    pd.to_datetime(data['Date'] + ' ' + data['Time'])
+    # https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html
+    data['datetime'] = pd.to_datetime(data['Date'] + ' ' + data['Time'])
+    data = data.set_index('datetime')
     return data
     
 def extract_single_year_remove_mean(year, data):
