@@ -7,8 +7,12 @@ import pandas as pd
 
 
 def read_tidal_data(filename):
-    data = pd.read_csv(filename, sep='\s+', skiprows=[0,1,2,3,4,5,6,7,8,10])
-    data.columns = data.columns.str.replace("ASLVZZ01", "Sea Level")
+    # Read data, separate columns by spaces, ignore first 10 , rename data column as "Sea Level"
+    # References: https://www.geeksforgeeks.org/how-to-read-space-delimited-files-in-pandas/ 
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
+    data = pd.read_csv(filename, sep='\s+', skiprows=[0,1,2,3,4,5,6,7,8,9,10], names=['Cycle', 'Date', 'Time', 'Sea Level', 'Residual'])
+    # Combine "Date" and "Time" to "datetimes"
+    pd.to_datetime(data['Date'] + ' ' + data['Time'])
     return data
     
 def extract_single_year_remove_mean(year, data):
