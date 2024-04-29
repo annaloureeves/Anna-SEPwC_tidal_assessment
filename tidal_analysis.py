@@ -11,7 +11,8 @@ def read_tidal_data(filename):
     # References: https://www.geeksforgeeks.org/how-to-read-space-delimited-files-in-pandas/ 
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
     data = pd.read_csv(filename, sep='\s+', skiprows=[0,1,2,3,4,5,6,7,8,9,10], names=['Cycle', 'Date', 'Time', 'Sea Level', 'Residual'])
-    # Combine "Date" and "Time" to "datetimes"
+    # Combine "Date" and "Time" to "datetimes" 
+    # References: https://stackoverflow.com/questions/17978092/combine-date-and-time-columns-using-pandas
     pd.to_datetime(data['Date'] + ' ' + data['Time'])
     return data
     
