@@ -7,16 +7,24 @@ import pandas as pd
 
 
 def read_tidal_data(filename):
+        tidal_file = "data/1947ABE.txt"
     # Read data, separate columns by spaces, ignore first 10 , rename data column as "Sea Level"
-    # References: https://www.geeksforgeeks.org/how-to-read-space-delimited-files-in-pandas/ 
-    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
-    data = pd.read_csv(filename, sep='\s+', skiprows=[0,1,2,3,4,5,6,7,8,9,10], names=['Cycle', 'Date', 'Time', 'Sea Level', 'Residual'])
+        # References: https://www.geeksforgeeks.org/how-to-read-space-delimited-files-in-pandas/ 
+        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
+        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
+        data = pd.read_csv(filename, sep='\s+', skiprows=[0,1,2,3,4,5,6,7,8,9,10], names=['Cycle', 'Date', 'Time', 'Sea Level', 'Residual'], na_values={'Sea Level': ['M', 'N', "T"]})
     # Combine "Date" and "Time" to "datetimes" 
-    # References: https://stackoverflow.com/questions/17978092/combine-date-and-time-columns-using-pandas
-    # https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html
-    data['datetime'] = pd.to_datetime(data['Date'] + ' ' + data['Time'])
-    data = data.set_index('datetime')
-    return data
+        # References: https://stackoverflow.com/questions/17978092/combine-date-and-time-columns-using-pandas
+        # https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html
+        data['datetime'] = pd.to_datetime(data['Date'] + ' ' + data['Time'])
+        data = data.set_index('datetime')
+     # Replacing NaN in Sea Level to placeholder values
+        # References: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.fillna.html 
+        # https://pandas.pydata.org/docs/user_guide/missing_data.html 
+        data['Sea Level'].fillna(-9999, inplace=True)
+        return data
+
+
     
 def extract_single_year_remove_mean(year, data):
    
