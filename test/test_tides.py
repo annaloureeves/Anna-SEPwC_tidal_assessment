@@ -7,6 +7,8 @@ from pylint.lint import Run
 from pylint.reporters import CollectingReporter
 from dataclasses import asdict
 import pandas as pd
+#changing test file to add numpy otherwise tests will fail
+import numpy as np
 
 class TestTidalAnalysis():
     
