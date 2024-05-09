@@ -3,7 +3,8 @@
 # import the modules you need here
 import argparse
 import pandas as pd
-import pylint
+import pylint 
+import numpy as np
 
 #From https://stackoverflow.com/questions/41938549/how-to-replace-all-non-numeric-entries-with-nan-in-a-pandas-dataframe
 def isnumber(x):
@@ -31,17 +32,28 @@ def read_tidal_data(filename):
     data = data[data.map(isnumber)]
     data["Sea Level"] = data["Sea Level"].astype(float)
     data["Residual"] = data["Residual"].astype(float)
+    data.replace(to_replace=".*M$",value={'A':np.nan},regex=True,inplace=True)
+    data.replace(to_replace=".*N$",value={'A':np.nan},regex=True,inplace=True)
+    data.replace(to_replace=".*T$",value={'A':np.nan},regex=True,inplace=True)
     return data
     
 def extract_single_year_remove_mean(year, data):
     #Function based on work from:
-    #https://www.dataquest.io/blog/datetime-in-pandas/
-    date_range = pd.Period(year)
-    mask = (data.index >= date_range.start_time) & (data.index <= date_range.end_time)
-    return data.loc[mask]
-
+    # https://www.dataquest.io/blog/datetime-in-pandas/
+    year_string_start = str(year)+"0101"
+    year_string_end = str(year)+"1231"
+    year_data = data.loc[year_string_start:year_string_end, ['Sea Level']]
+    # Find the mean and remove it
+    # https://jhill1.github.io/SEPwC.github.io/Mini_courses.html#tidal-analysis-in-python
+    mmm = np.mean(year_data['Sea Level'])
+    year_data['Sea Level'] -= mmm
+    return year_data
 
 def extract_section_remove_mean(start, end, data):
+    data1 = read_tidal_data('data/1946ABE.txt'[1])
+    data2 = read_tidal_data('data/1947ABE.txt'[0])
+    data = join_data(data1, data2)
+
 
 
     return 
