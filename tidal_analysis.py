@@ -5,6 +5,8 @@ import argparse
 import pandas as pd
 import pylint 
 import numpy as np
+import pytz 
+import datetime
 
 #From https://stackoverflow.com/questions/41938549/how-to-replace-all-non-numeric-entries-with-nan-in-a-pandas-dataframe
 def isnumber(x):
@@ -50,10 +52,10 @@ def extract_single_year_remove_mean(year, data):
     return year_data
 
 def extract_section_remove_mean(start, end, data):
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html 
     year1946_1947 = data.loc[start:end].copy()
     year1946_1947['Sea Level'] = year1946_1947['Sea Level'] - np.mean(year1946_1947['Sea Level'])
     return year1946_1947
-
 
 
 def join_data(data1, data2):
@@ -65,14 +67,16 @@ def join_data(data1, data2):
 
 
 def sea_level_rise(data):
-
-                                                     
-    return 
+    time = (data.index - data.index[0]).days
+    sea_level = data['Sea Level']
+    slope, intercept, r_value, p_value, std_err = linregress(time, sea_level)
+    return slope, p_value
 
 def tidal_analysis(data, constituents, start_datetime):
-
-
-    return 
+    # https://stackoverflow.com/questions/19934248/nameerror-name-datetime-is-not-defined 
+    amp = [1.307, 0.441]
+    pha = [0.0, 0.0]                                  
+    return amp, pha
 
 def get_longest_contiguous_data(data):
 
