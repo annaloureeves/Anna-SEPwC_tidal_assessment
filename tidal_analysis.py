@@ -22,7 +22,7 @@ def read_tidal_data(filename):
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
     data = pd.read_csv(filename, skiprows=[
-                    0, 1, 2, 3, 4, 5, 6, 7, 8, 10], sep='\s+')
+                    0, 1, 2, 3, 4, 5, 6, 7, 8, 10], sep=r'\s+')
     data.rename(columns={data.columns[3]: "Sea Level"}, inplace=True)
     # Combine "Date" and "Time" to "datetimes" 
     # References: https://stackoverflow.com/questions/17978092/combine-date-and-time-columns-using-pandas
@@ -50,13 +50,11 @@ def extract_single_year_remove_mean(year, data):
     return year_data
 
 def extract_section_remove_mean(start, end, data):
-    data1 = read_tidal_data('data/1946ABE.txt'[1])
-    data2 = read_tidal_data('data/1947ABE.txt'[0])
-    data = join_data(data1, data2)
+    year1946_1947 = data.loc[start:end].copy()
+    year1946_1947['Sea Level'] = year1946_1947['Sea Level'] - np.mean(year1946_1947['Sea Level'])
+    return year1946_1947
 
 
-
-    return 
 
 
 def join_data(data1, data2):
