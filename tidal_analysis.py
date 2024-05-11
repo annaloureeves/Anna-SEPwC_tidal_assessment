@@ -56,7 +56,6 @@ def extract_section_remove_mean(start, end, data):
 
 
 
-
 def join_data(data1, data2):
     joined_data = pd.concat([data1, data2])
     # https://stackoverflow.com/questions/40262710/sorting-a-pandas-dataframe-by-its-index
