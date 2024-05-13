@@ -5,8 +5,13 @@ import argparse
 import pandas as pd
 import pylint 
 import numpy as np
+from pyparsing import line
 import pytz 
 import datetime
+import pytest
+import matplotlib.pyplot as plt
+from scipy.stats import linregress
+from matplotlib.dates import date2num
 
 #From https://stackoverflow.com/questions/41938549/how-to-replace-all-non-numeric-entries-with-nan-in-a-pandas-dataframe
 def isnumber(x):
@@ -65,12 +70,23 @@ def join_data(data1, data2):
     return joined_data
 
 
-
 def sea_level_rise(data):
-    time = (data.index - data.index[0]).days
-    sea_level = data['Sea Level']
-    slope, intercept, r_value, p_value, std_err = linregress(time, sea_level)
-    return slope, p_value
+    # https://www.w3schools.com/python/python_ml_multiple_regression.asp 
+    df = data
+    df['datetime_as_number'] = df.index.map(lambda x: date2num(x))
+    df.dropna(subset=["Sea Level"], inplace=True)
+    print(data.columns)
+    # df = pd.read_csv(data)
+    print("here2")
+    x = df["datetime_as_number"]
+    print("here3")
+    y = df['Sea Level']
+    print("here4")
+    # sea_level_rise = line
+    print(df)
+    res = linregress(x, y)
+    print(res)
+    return res.slope, res.pvalue
 
 def tidal_analysis(data, constituents, start_datetime):
     # https://stackoverflow.com/questions/19934248/nameerror-name-datetime-is-not-defined 
