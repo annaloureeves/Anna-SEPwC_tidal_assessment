@@ -3,15 +3,11 @@
 # import the modules you need here
 import argparse
 import pandas as pd
-import pylint 
 import numpy as np
-from pyparsing import line
-import pytz 
-import datetime
-import pytest
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 from matplotlib.dates import date2num
+import glob 
 
 #From https://stackoverflow.com/questions/41938549/how-to-replace-all-non-numeric-entries-with-nan-in-a-pandas-dataframe
 def isnumber(x):
@@ -72,9 +68,10 @@ def join_data(data1, data2):
 
 def sea_level_rise(data):
     # https://www.w3schools.com/python/python_ml_multiple_regression.asp 
+    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.dropna.html 
     df = data
     df['datetime_as_number'] = df.index.map(lambda x: date2num(x))
-    df["Sea Level"].fillna(df["Sea Level"].max(), inplace=True)
+    df.dropna(subset=["Sea Level"], inplace=True)
     print(data.columns)
     # df = pd.read_csv(data)
     print("here2")
@@ -95,6 +92,7 @@ def tidal_analysis(data, constituents, start_datetime):
     return amp, pha
 
 def get_longest_contiguous_data(data):
+ 
 
 
     return 
@@ -117,6 +115,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
     dirname = args.directory
     verbose = args.verbose
+    file_list = glob.glob(dirname + "/*.txt")
+    files = pd.DataFrame()
+    for file in file_list:
+        if verbose: 
+            msg = "Reading in " + file
+            print(msg)
+        temp_data = read_tidal_data(file)
+        files = join_data(files, temp_data)
+    print(files)
+    print
+    # extract earliest year find mean, extract latest year find mean and take off otehr. = sea level rise 
+    # calculate longest continuous part of data
     
 
 
