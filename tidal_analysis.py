@@ -74,7 +74,7 @@ def sea_level_rise(data):
     # https://www.w3schools.com/python/python_ml_multiple_regression.asp 
     df = data
     df['datetime_as_number'] = df.index.map(lambda x: date2num(x))
-    df.dropna(subset=["Sea Level"], inplace=True)
+    df["Sea Level"].fillna(df["Sea Level"].max(), inplace=True)
     print(data.columns)
     # df = pd.read_csv(data)
     print("here2")
