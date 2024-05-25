@@ -13,7 +13,7 @@ from matplotlib.dates import date2num
 import uptide
 
 
-#From https://stackoverflow.com/questions/41938549/how-to-replace-all-non-numeric-entries-with-nan-in-a-pandas-dataframe
+# From https://stackoverflow.com/questions/41938549/how-to-replace-all-non-numeric-entries-with-nan-in-a-pandas-dataframe
 def isnumber(x):
     """Custom function for determining if feature is a number."""
     try:
@@ -21,14 +21,14 @@ def isnumber(x):
         return True
     except:
         return False
-  
+
 def read_tidal_data(filename):
     """Reads in selected file name of standard formatting and exports to a data frame"""
     tidal_file = "data/1947ABE.txt"
     # Read data, separate columns by spaces, ignore first 10 , rename data column as "Sea Level"
-    # References: https://www.geeksforgeeks.org/how-to-read-space-delimited-files-in-pandas/ 
-    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
-    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html 
+    # References: https://www.geeksforgeeks.org/how-to-read-space-delimited-files-in-pandas/
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
     data = pd.read_csv(filename, skiprows=[
                     0, 1, 2, 3, 4, 5, 6, 7, 8, 10], sep=r'\s+')
     data.rename(columns={data.columns[3]: "Sea Level"}, inplace=True)
@@ -44,9 +44,10 @@ def read_tidal_data(filename):
     data.replace(to_replace=".*N$",value={'A':np.nan},regex=True,inplace=True)
     data.replace(to_replace=".*T$",value={'A':np.nan},regex=True,inplace=True)
     return data
-    
+
 def extract_single_year_remove_mean(year, data):
-    #Function based on work from:
+    """Extracts single year and subtracts the mean from each row"""
+    # Function based on work from:
     # https://www.dataquest.io/blog/datetime-in-pandas/
     year_string_start = str(year)+"0101"
     year_string_end = str(year)+"1231"
@@ -58,13 +59,15 @@ def extract_single_year_remove_mean(year, data):
     return year_data
 
 def extract_section_remove_mean(start, end, data):
-    # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html 
+    """Extracts single year and subtracts the mean from each row"""
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html
     year1946_1947 = data.loc[start:end].copy()
     year1946_1947['Sea Level'] = year1946_1947['Sea Level'] - np.mean(year1946_1947['Sea Level'])
     return year1946_1947
 
 
 def join_data(data1, data2):
+    """Joins data frames in chronological order"""
     joined_data = pd.concat([data1, data2])
     # https://stackoverflow.com/questions/40262710/sorting-a-pandas-dataframe-by-its-index
     joined_data.sort_index(ascending=True, inplace=True)
@@ -72,8 +75,9 @@ def join_data(data1, data2):
 
 
 def sea_level_rise(data):
-    # https://www.w3schools.com/python/python_ml_multiple_regression.asp 
-    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.dropna.html 
+    """Linnear Regression of Sea Level Against Time"""
+    # https://www.w3schools.com/python/python_ml_multiple_regression.asp
+    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.dropna.html
     df = data
     df['datetime_as_number'] = df.index.map(lambda x: date2num(x))
     df.dropna(subset=["Sea Level"], inplace=True)
@@ -83,22 +87,25 @@ def sea_level_rise(data):
     return res.slope, res.pvalue
 
 def tidal_analysis(data, constituents, start_datetime):
+    """Harmonic Analysis of Sea Level Data Using Tidal Constituents"""
     # using uptide package as described
-    # https://github.com/stephankramer/uptide 
+    # https://github.com/stephankramer/uptide
     data = data.dropna(subset=["Sea Level"])
-    # https://stackoverflow.com/questions/16628819/convert-pandas-timezone-aware-datetimeindex-to-naive-timestamp-but-in-certain-t 
+    # https://stackoverflow.com/questions/16628819/convert-pandas-timezone-aware-datetimeindex-to-naive-timestamp-but-in-certain-t
     # Putting this here because otherwise if we put it in read data, the tests fail
     data.index = pd.to_datetime(data.index, utc=True)
     tide = uptide.Tides(constituents)
     tide.set_initial_time(start_datetime)
-    amp, pha = uptide.harmonic_analysis(tide, data["Sea Level"], (data.index - start_datetime).total_seconds())
+    amp, pha = uptide.harmonic_analysis(tide, data["Sea Level"],
+                                        (data.index - start_datetime).total_seconds())
     return amp, pha
 
 def get_longest_contiguous_data(data):
-    # https://stackoverflow.com/questions/41494444/pandas-find-longest-stretch-without-nan-values 
-    a = data["Sea Level"].values  # Extract out relevant column from dataframe as array
-    m = np.concatenate(( [True], np.isnan(a), [True] ))  # Mask
-    ss = np.flatnonzero(m[1:] != m[:-1]).reshape(-1,2)   # Start-stop limits
+    """"Extract Longest Continuous Segment of Sea Level Data"""
+    # https://stackoverflow.com/questions/41494444/pandas-find-longest-stretch-without-nan-values
+    a = data["Sea Level"].values
+    m = np.concatenate(( [True], np.isnan(a), [True] ))
+    ss = np.flatnonzero(m[1:] != m[:-1]).reshape(-1,2)
     start,stop = ss[(ss[:,1] - ss[:,0]).argmax()]
     data = data.reset_index()
     range = data.iloc[start:stop]
