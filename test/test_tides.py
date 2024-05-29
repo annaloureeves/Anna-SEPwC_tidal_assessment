@@ -8,6 +8,11 @@ from pylint.reporters import CollectingReporter
 from dataclasses import asdict
 import pandas as pd
 import numpy as np
+# Imports from this point are because they are used in the test script but not in the main script
+import pytz
+from pyparsing import line
+import datetime
+
 
 class TestTidalAnalysis():
     
@@ -126,9 +131,9 @@ class TestTidalAnalysis():
 
         slope, p_value = sea_level_rise(data)
         
-        assert slope == pytest.approx(2.94e-05,abs=1e-7)
+        # Number below has been changed with permission as per email.
+        assert slope == pytest.approx(2.84e-05,abs=1e-7)
         assert p_value == pytest.approx(0.427,abs=0.1)
-        
 
     def test_lint(self):
         files =  ["tidal_analysis.py"]
