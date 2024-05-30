@@ -31,13 +31,13 @@ def read_tidal_data(filename):
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
     data = pd.read_csv(filename, skiprows=[
                     0, 1, 2, 3, 4, 5, 6, 7, 8, 10], sep=r'\s+')
-    # Rename column to "Sea Level"
+    # Rename column "Sea Level"
     data.rename(columns={data.columns[3]: "Sea Level"}, inplace=True)
-    # Combine "Date" and "Time" to "datetimes"
+    # Combine "Date" and "Time" to make "datetime"
     # References: https://stackoverflow.com/questions/17978092/combine-date-and-time-columns-using-pandas
     # https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html
     data['datetime'] = pd.to_datetime(data['Date'] + ' ' + data['Time'])
-    # Set "datetime" column as the index of the df
+    # Set "datetime" column as index of the dataframe
     # https://stackoverflow.com/questions/27032052/how-do-i-properly-set-the-datetimeindex-for-a-pandas-datetime-object-in-a-datafr
     data = data.set_index('datetime')
     # Filter to only include rows where all the elements are numbers
@@ -77,7 +77,9 @@ def extract_single_year_remove_mean(year, data):
 def extract_section_remove_mean(start, end, data):
     """Extracts single year and subtracts the mean from each row"""
     # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html
+    # Create datafame for 1946-1947
     year1946_1947 = data.loc[start:end].copy()
+    # Subtract mean sea level for 1946 to 1947
     year1946_1947['Sea Level'] = year1946_1947['Sea Level'] - np.mean(year1946_1947['Sea Level'])
     return year1946_1947
 
@@ -102,9 +104,11 @@ def sea_level_rise(data):
     # Assign the DataFrame 'data' to the variable 'df'
     df = data
     # Convert datetime index to numerical format using date2num
+    # https://pandas.pydata.org/docs/reference/api/pandas.Series.map.html
     df['datetime_as_number'] = df.index.map(convert_date_to_number)
     # Drop rows with missing values in 'Sea Level'
     df.dropna(subset=["Sea Level"], inplace=True)
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html
     # Assign new datetime values to 'x' and 'Sea Level' values to 'y'
     x = df["datetime_as_number"]
     y = df['Sea Level']
@@ -134,13 +138,18 @@ def tidal_analysis(data, constituents, start_datetime):
 def get_longest_contiguous_data(data):
     """"Extract Longest Continuous Segment of Sea Level Data"""
     # https://stackoverflow.com/questions/41494444/pandas-find-longest-stretch-without-nan-values
+    # Extract the Sea Level column
     a = data["Sea Level"].values
     # Create a mask for NaN
     m = np.concatenate(( [True], np.isnan(a), [True] ))
     ss = np.flatnonzero(m[1:] != m[:-1]).reshape(-1,2)
+    # Find the start and stop indicies of the longest continuous segment
     start,stop = ss[(ss[:,1] - ss[:,0]).argmax()]
+    # Reset index of the data frame
     data = data.reset_index()
+    # Select dataframe rows corresponding with the longest continuous data of non-NaN
     datarange = data.iloc[start:stop]
+    # Make 'datetime' column index of the dataframe
     datarange = datarange.set_index('datetime')
     return datarange
 
@@ -173,3 +182,4 @@ if __name__ == '__main__':
     print(files.head(25))
     print(get_longest_contiguous_data(files))
     print(sea_level_rise(files))
+    # This is the completed version of my code
